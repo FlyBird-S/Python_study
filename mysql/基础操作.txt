@@ -1,0 +1,10 @@
+//login
+mysql -u root -p
+//change prompt   \u(user) \h(host) \d(database)
+mysql prompt \u@\h \d>  
+
+CREATE DATABASE t1;
+SHOW DATAFILES;
+SHOW CREATE DATABASE t1;
+CREATE DATABASE [IF NOT EXISTS] t2 CHARACTER SET = gbk£»
+ALTER DATABASE t2 CHARACTER SET = utf8;
