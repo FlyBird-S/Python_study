@@ -1,10 +1,66 @@
 //login
 mysql -u root -p
-//change prompt   \u(user) \h(host) \d(database)
-mysql prompt \u@\h \d>  
+//change prompt（提示符）   \u(user) \h(host) \d(database)
+prompt \u@\h \d>  
 
-CREATE DATABASE t1;
+#数据库
+CREATE DATABASE xxx;#创建
+use database xxx;#选择
+drop database xxx;#删除
 SHOW DATAFILES;
 SHOW CREATE DATABASE t1;
 CREATE DATABASE [IF NOT EXISTS] t2 CHARACTER SET = gbk；
 ALTER DATABASE t2 CHARACTER SET = utf8;
+
+#数据表
+ use database_name;  #打开数据库
+ select database(); #可以查看当前打开的数据库
+ create table [if not exists] table_name(column_name datatype,......)#创建数据表
+    eg:
+          test>create TABLE tb1(
+            -> username VARCHAR(20) NOT NULL,#NOT NULL 该参数必须被赋值
+            -> age TINYINT UNSIGNED,
+            -> salary FLOAT(8,2) UNSIGNED
+            -> );
+  SHOW TABLES [FROM db_name] ;#查看数据表
+  DROP TABLE table_name ; #删除数据表
+  
+  SHOW COLUMNS FROM tb1;#查看数据表结构
+  INSERT [INTO] table_name[(column_name),..] VALUES(va1,...) #插入记录
+  SELECT expr,... FROM tb1_name
+  eg:
+        >select * from tb1;
+        +----------+------+---------+
+        | username | age  | salary  |
+        +----------+------+---------+
+        | Son      |   25 | 4500.50 |
+        | LI       | NULL |   25.30 |
+        +----------+------+---------+
+#约束  
+   #非空约束 NOT NULL
+   #主键约束（PRIMARY KEY）,每张数据表唯一存在的，保证记录的唯一性。
+        #自动编号   AUTO_INCREMENT 必须与主键一起使用。
+               create table tb3(
+                -> id smallint unsigned auto_increment primary key,
+                -> username varchar(20)
+                -> );
+                root@localhost test>show columns from tb3;
+            +----------+----------------------+------+-----+---------+----------------+
+            | Field    | Type                 | Null | Key | Default | Extra          |
+            +----------+----------------------+------+-----+---------+----------------+
+            | id       | smallint(5) unsigned | NO   | PRI | NULL    | auto_increment |
+            | username | varchar(20)          | YES  |     | NULL    |                |
+            +----------+----------------------+------+-----+---------+----------------+
+   #唯一约束（UNIQUE KEY）,也可以保证记录的唯一性，最多可以有一个空值。每张数据表可以有多个唯一约束。
+               create table tb5
+            -> (
+            -> id smallint unsigned auto_increment primary key,
+            -> username varchar(20) not null UNIQUE KEY, # UNIQUE KEY 保证不能username必须不能重复
+            -> age tinyint unsigned);
+    #默认约束（default key） 
+                ->create table tb6 (
+                -> id smallint unsigned auto_increment primary key,
+                -> username varchar(20) not null unique key,
+                -> sex enum('1','2','3') DEFAULT'3' # DEFAULT 可以设置默认值，在未赋值时使用默认值
+                -> );
+    #外键约束 默认引擎需要为 default-storage-engine=INNODB（my.ini）
