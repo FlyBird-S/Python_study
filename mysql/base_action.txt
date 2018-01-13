@@ -1,0 +1,144 @@
+//login
+mysql -u root -p
+//change prompt（提示符）   \u(user) \h(host) \d(database)
+prompt \u@\h \d>  
+
+#数据库
+CREATE DATABASE xxx;#创建
+use database xxx;#选择
+drop database xxx;#删除
+SHOW DATAFILES;
+SHOW CREATE DATABASE t1;
+CREATE DATABASE [IF NOT EXISTS] t2 CHARACTER SET = gbk；
+ALTER DATABASE t2 CHARACTER SET = utf8;
+
+#数据表
+ use database_name;  #打开数据库
+ select database(); #可以查看当前打开的数据库
+ create table [if not exists] table_name(column_name datatype,......)#创建数据表
+    eg:
+          test>create TABLE tb1(
+            -> username VARCHAR(20) NOT NULL,#NOT NULL 该参数必须被赋值
+            -> age TINYINT UNSIGNED,
+            -> salary FLOAT(8,2) UNSIGNED
+            -> );
+  SHOW TABLES [FROM db_name] ;#查看数据表
+  DROP TABLE table_name ; #删除数据表
+  
+  SHOW COLUMNS FROM tb1;#查看数据表结构
+  INSERT [INTO] table_name[(column_name),..] VALUES(va1,...) #插入记录
+  SELECT expr,... FROM tb1_name
+  eg:
+        >select * from tb1;
+        +----------+------+---------+
+        | username | age  | salary  |
+        +----------+------+---------+
+        | Son      |   25 | 4500.50 |
+        | LI       | NULL |   25.30 |
+        +----------+------+---------+
+#约束  
+   #非空约束 NOT NULL
+   #主键约束（PRIMARY KEY）,每张数据表唯一存在的，保证记录的唯一性。
+        #自动编号   AUTO_INCREMENT 必须与主键一起使用。
+               create table tb3(
+                -> id smallint unsigned auto_increment primary key,
+                -> username varchar(20)
+                -> );
+                root@localhost test>show columns from tb3;
+            +----------+----------------------+------+-----+---------+----------------+
+            | Field    | Type                 | Null | Key | Default | Extra          |
+            +----------+----------------------+------+-----+---------+----------------+
+            | id       | smallint(5) unsigned | NO   | PRI | NULL    | auto_increment |
+            | username | varchar(20)          | YES  |     | NULL    |                |
+            +----------+----------------------+------+-----+---------+----------------+
+   #唯一约束（UNIQUE KEY）,也可以保证记录的唯一性，最多可以有一个空值。每张数据表可以有多个唯一约束。
+               create table tb5
+            -> (
+            -> id smallint unsigned auto_increment primary key,
+            -> username varchar(20) not null UNIQUE KEY, # UNIQUE KEY 保证不能username必须不能重复
+            -> age tinyint unsigned);
+    #默认约束（default key） 
+                ->create table tb6 (
+                -> id smallint unsigned auto_increment primary key,
+                -> username varchar(20) not null unique key,
+                -> sex enum('1','2','3') DEFAULT'3' # DEFAULT 可以设置默认值，在未赋值时使用默认值
+                -> );
+    #外键约束 默认引擎需要为 default-storage-engine=INNODB（my.ini）
+    （外键就是与之相关联表的主键）
+       1）、创建父表
+        -> create table provinces(
+        -> id smallint unsigned primary key auto_increment,
+        -> pname varchar(20) not null);
+        确保引擎为 INNODB
+        -> show create table provinces;
+       2）、创建子表
+            mysql> create table users(
+            -> id smallint unsigned primary key auto_increment,
+            -> username varchar(10) not null,                       #要想添加省信息，只需要与已有的表关联
+            -> pid smallint unsigned,                               #保证与主表主键类型一致
+            -> foreign key (pid) references provinces(id)           #参考provinces表
+            -> );
+        父表provinces中的id被称作参照列，子表中的pid称为外键列。参照列与外键列必须有索引，当参照列为主键时mysql会为其自动添加索引。
+        通过 show indexes from table_name\G查看索引
+        #外键参数：
+        cascade：从父表删除或更新且自动删除更新子表中匹配的行（父表改变影响子表）
+                mysql> create table users1(
+                -> id smallint unsigned primary key auto_increment,
+                -> username varchar(10) not null,
+                -> pid smallint unsigned,
+                -> foreign key (pid) references provinces(id) ON DELETE CASCADE
+                -> );
+        SET NULL：从父表删除或更新行，并设置子表中的外键列为NULL。选用此选型时，必须保证子表列没有指定NOT NULL。（父表改变子表变null）
+        RESTRICT ：拒绝父表的删除更改操作
+        NO ACTION：与RESTRICT 相同
+    实际情况中不使用物理外键约束，使用逻辑外键约束。
+    
+    #表级约束与列级约束
+     对一个数据列建立的约束，称为列级约束。对多个数据列建立的约束，称为表级约束。列级约束可以在列定义时声明，也可以在列定义后声明。表级约束只能在列定义以后声明
+#数据表的修改
+    #列修改
+        #添加单列
+        ALTER TABLE table_name ADD[column] column_name column_definition [FIRST | AFTER column_name] 
+        eg:
+            mysql> alter table users1 add age tinyint unsigned not null default 10;
+            mysql> alter table users1 add password varchar(20) not null default "laowang" after username;
+            mysql> alter table users1 add trunname varchar(20) not null default "xiaowang" afirst;
+        #添加多列
+        ALTER TABLE table_name ADD[column] (column_name column_definition)
+        #删除列 Alter table table_name drop[column] column_name
+            mysql> alter table users1 drop trunname;
+            mysql> alter table users1 drop age, drop password;
+    #修改约束
+        #添加主键约束   
+           ALTER TABLE users1 ADD [CONSTRAINT[symbol]]  PRIMARY KEY [index_type](index_col_name,...);
+        mysql> alter table users1 add constraint pk_users1_id primary key (id);
+        #添加唯一约束   
+           ALTER TABLE users1 ADD [CONSTRAINT[symbol]]  UNIQUE [index| key][index_name][index_type](index_col_name,...);
+         mysql> alter table users1 add  unique (username);
+        #添加外键约束 
+           ALTER TABLE users1 ADD [CONSTRAINT[symbol]]  FOREIGN KEY [index| key][index_name](index_col_name,...) REFERENCES();
+           mysql> alter table users1 add foreign key (pid) references provinces (id);
+        #添加默认约束
+            ALTER TABLE tb1_name ALTER[COLUMN] col_name{
+        SET DEFAULT literal| DROP DEFAULT}           
+           alter table users1 alter age set default 15;
+        #删除主键约束 
+            ALTER TABLE tbl_name DROP PRIMARY KEY
+        #删除唯一约束
+            ALTER TABLE tbl_name DROP {INDEX|KEY} index_name    
+            eg:mysql> ALTER TABLE users1 DROP INDEX username;
+        #删除外键约束  
+            ALTER TABLE tbl_name DROP FOREIGN KEY fk_symbol
+            首先通过mysql> show create table   users1;查看约束名，
+            mysql> alter table users1 drop foreign key users1_ibfk_1;    
+    #修改列定义
+            ALTER TABLE tbl_name MODIFY[COLUMN] col_name col_definition[FIRST| AFTER col_name]
+            mysql> alter table users1 modify id smallint unsigned not null first;
+    #修改列名称、定义
+            ALTER TABLE tb1_name CHANGE[COLUMN] old_name new_name column_definition [FIRST | AFTER col_name]
+            eg:mysql> alter table users1 change pid p_id tinyint unsigned not null;
+    #修改数据表名词
+            1、ALTER TABLE tbl_name RENAME[TO|AS] new_tbl_name
+            eg: mysql> alter table users1 rename users2;
+            2、RENAME TABLE tb1_name TO new_tbl_name[,tb1_name2 to new_tbl_name2...]
+            eg: mysql> rename table tb1 to tb_1, tb2 to tb_2;
