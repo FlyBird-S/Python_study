@@ -142,3 +142,89 @@ ALTER DATABASE t2 CHARACTER SET = utf8;
             eg: mysql> alter table users1 rename users2;
             2、RENAME TABLE tb1_name TO new_tbl_name[,tb1_name2 to new_tbl_name2...]
             eg: mysql> rename table tb1 to tb_1, tb2 to tb_2;
+#记录的操作
+    #插入记录(自动编号的赋值NULL、或者defualt)
+           1、 INSERT[INFO] tb1_name[(col_name,..)]{VALUES|VALUE}({expr|DEFAULT},...),(..),...
+           eg: mysql> insert user_test values (default,'tom4','123',7*2),(null,'laow','11',2);
+           2、 INSERT[INFO] tb1_name SET col_name=expr|DEFAULT},...#可以使用子查询
+           eg: mysql> INSERT user_test SET username='song',password='123';
+           3、 INSERT[INFO] tb1_name[(col_name,..)]SELECT...
+           eg: insert test(username) select username from users where age > 30;#将age>30的username从一个表写入另一个表
+    #记录修改
+            1、UPDATE[LOW_PRIORITY][IGNORE] table_reference SET col_name={expr1|DEFAULT}...[WHERE where_condition](单表更新)
+            eg:
+                mysql> update user_test set age = age + 5;
+                mysql> update user_test set sex = id ,password="321";
+                mysql> update user_test set age=age+10 where id % 2 = 0;
+    #记录删除
+            DELETE FROM tb1_name [WHERE where_condition]
+            mysql> delete from user_test where id = 6;
+    #查询表达式
+    每一个表达式表示想要的一列，必须有至少一个。多个列之间以英文逗号分隔。星号(*)表示所有列。tbl_name.*可以表示命名表的所有列。查询表达式可以使用[ AS ] alias_name为其赋予别名。别名可用于GROUP BY,ORDER BY或HAVING子句。
+        #SELECT: eg：mysql> select username,id  from user_test;
+                     mysql> select user_test.username,user_test.id  from user_test;
+                     通过别名查看：mysql> select id as userid,username as uname from user_test;
+                     
+        SELECT select_expr[, select_expr ...]
+            [
+
+              FROM table_references
+
+              [WHERE where_condition]
+
+              [GROUP BY {col_name | position} [ASC | DESC], ...]
+
+              [HAVING where_condition]
+
+              [ORDER BY {col_name | expr | position} [ASC | DESC], ...]
+
+              [LIMIT {[offset, ]row_count | row_count OFFSET offset}]
+
+            ]
+        #WHERE: 条件
+        #查询结果分组：
+             [GROUP BY{col_name | position}[ASC|DESC],...]#ASC升序 #DESC降序
+             mysql> select * from user_test group by age;
+                +----+----------+----------+------+------+
+                | id | username | password | sex  | age  |
+                +----+----------+----------+------+------+
+                |  1 | tom      | 321      |    1 |   10 |
+                |  2 | tom1     | 321      |    2 |   20 |
+                +----+----------+----------+------+------+
+            #分组条件
+            [having condition]
+            eg: mysql> select * from user_test group by age having age > 10;
+        #查询结果排序：[ORDER BY{col_name|expr|position}[ASC|DESC],...]
+        eg:mysql> select * from user_test order by id DESC;
+                +----+----------+----------+------+------+
+                | id | username | password | sex  | age  |
+                +----+----------+----------+------+------+
+                |  7 | song     | 321      |    7 |   10 |
+                |  5 | tom4     | 321      |    5 |   10 |
+                |  4 | tom2     | 321      |    4 |   20 |
+                |  3 | tom2     | 321      |    3 |   10 |
+                |  2 | tom1     | 321      |    2 |   20 |
+                |  1 | tom      | 321      |    1 |   10 |
+                +----+----------+----------+------+------+
+                mysql> select * from user_test order by age DESC,id DESC;
+                +----+----------+----------+------+------+
+                | id | username | password | sex  | age  |
+                +----+----------+----------+------+------+
+                |  4 | tom2     | 321      |    4 |   20 |
+                |  2 | tom1     | 321      |    2 |   20 |
+                |  7 | song     | 321      |    7 |   10 |
+                |  5 | tom4     | 321      |    5 |   10 |
+                |  3 | tom2     | 321      |    3 |   10 |
+                |  1 | tom      | 321      |    1 |   10 |
+                +----+----------+----------+------+------+
+        #查询结果限制：[limit{offset,}row_count|row_count OFFSET offset]
+                        mysql> select * from user_test limit 2;
+                        mysql> select * from user_test limit 2,5;#从2开始5个
+    #子查询：指的是在其他sql语句内的select字句。
+        eg： select * from ti where col =(select col form t2) 其外层查询可以包括 select insert update set do...
+        1、使用比较运算符的子查询
+        mysql> select goods_id,goods_name,goods_price from tdb_goods where goods_price >= (select round(avg(goods_price),2) from tdb_goods);
+        #在返回多行内容时可以通过以下三个操作符。
+        ANY（subquery）= SOME（subquery）      
+        ALL（subquery）
+        eg:mysql> select goods_id,goods_name,goods_price from tdb_goods where goods_price >= ALL(select goods_price from tdb_goods where goods_cate = "超级本" );
