@@ -193,7 +193,7 @@ ALTER DATABASE t2 CHARACTER SET = utf8;
                 +----+----------+----------+------+------+
             #分组条件
             [having condition]
-            eg: mysql> select * from user_test group by age having age > 10;
+            eg: mysql> select * from user_test group by age HAVING age > 10;
         #查询结果排序：[ORDER BY{col_name|expr|position}[ASC|DESC],...]
         eg:mysql> select * from user_test order by id DESC;
                 +----+----------+----------+------+------+
@@ -227,4 +227,166 @@ ALTER DATABASE t2 CHARACTER SET = utf8;
         #在返回多行内容时可以通过以下三个操作符。
         ANY（subquery）= SOME（subquery）      
         ALL（subquery）
-        eg:mysql> select goods_id,goods_name,goods_price from tdb_goods where goods_price >= ALL(select goods_price from tdb_goods where goods_cate = "超级本" );
+            eg:mysql> select goods_id,goods_name,goods_price from tdb_goods where goods_price >= ALL(select     goods_price from tdb_goods where goods_cate = "超级本" );
+        2、使用[NOT] IN 的子查询
+        operand comparison_openator [NOT] IN(subquery）)
+        IN 等价于 =ANY
+        NOT IN 等价于 !=ALL
+            mysql> select goods_id,goods_name,goods_price from tdb_goods where goods_price IN(select     goods_price from tdb_goods where goods_cate = "超级本" );
+        3、EXIST 子查询返回任何行EXIST 返回true否则返回false
+       #inser ... select
+       eg：mysql> insert tdb_goods_cates(cate_name) select goods_cate from tdb_goods group by goods_cate;
+    #多表更新
+        UPDATE table_references SET col_name1={expr1|DEFAULT}[,expr2|DEFAULT,..][WHERE where_condition]
+        #table_references 语法
+        {[INNER|CROSS]JOIN|{LEFT|RIGHT}[OUTER]JOIN}
+        table_reference ON condition_expr
+       eg:
+       mysql> UPDATE tdb_goods INNER JOIN tdb_goods_cates ON goods_cate = cate_name SET goods_cate = cate_id;
+       
+     #CREATE ... SELECT 将查询结果在创建时写入
+     CREATE TABLE [IF NOT EXISTS]  tlb_name[(create_definition)] select_statement
+     eg:
+         mysql> CREATE TABLE tdb_goods_brands(
+        -> brand_id SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+        -> brand_name VARCHAR(40) NOT NULL
+        -> )
+        -> SELECT brand_name FROM tdb_goods GROUP BY brand_name;
+        
+        mysql> UPDATE tdb_goods AS g INNER JOIN tdb_goods_brands AS b ON g.brand_name = b.brand_name SET g.brand_name = b.brand_id; #由于两张表都含有brand_name 所以要给表起别名
+        mysql> ALTER TABLE tdb_goods
+        -> CHANGE goods_cate cate_id SMALLINT UNSIGNED NOT NULL,
+        -> CHANGE brand_name brand_id SMALLINT UNSIGNED NOT NULL;
+    #多表的连接：在使用逻辑外键时，需要多表协作需使用连接 可以用在多表更新、多表删除、select语句中
+        A  [TYPE]JOIN B ON condition
+        #[TYPE]JOIN 连接类型 
+        #内连接
+            JION== INNER JION == CROSS JOIN
+        #外连接
+            LEFT[OUTER]JOIN #左外连接
+            RIGHT[OUTER]JOIN#右外连接
+        #连接条件 ON 或者 WHERE（通常使用ON设立连接条件，使用WHERE 设立SELECT条件）
+        内连接：显示左表及右表符合连接条件的记录，A ∩ B
+        左外连接：显示左表中的全部和右表符合连接条件的记录，A ∪ (A ∩ B)
+        右外连接：显示右表中的全部和左表符合连接条件的记录，B ∪ (A ∩ B)
+
+        #多表连接
+                eg： mysql> UPDATE tdb_goods INNER JOIN tdb_goods_cates ON goods_cate = cate_name SET goods_cate = cate_id;
+             mysql> SELECT goods_name,cate_name FROM tdb_goods INNER JOIN tdb_goods_cates ON tdb_goods.cate_id = tdb_goods_cates.cate_id;
+             #3 table
+             mysql> SELECT goods_id,goods_name,cate_name,brand_name from tdb_goods AS a 
+                 -> INNER JOIN tdb_goods_cates AS b ON a.cate_id = b.cate_id
+                 -> INNER JOIN tdb_goods_brands AS c ON c.brand_id = a.brand_id;
+        #自身连接
+            #在无限分类的数据表设计中通常需要进行自身连接，自身连接一般需要用别名区分子表与父表
+            mysql> SELECT s.type_id ,s.type_name,p.type_id,p.type_name FROM tdb_goods_types AS s INNER JOIN tdb_goods_types AS p
+            -> ON s.parent_id = p.type_id;        
+            mysql> SELECT p.type_id ,p.type_name,count(s.type_name) AS child_count FROM tdb_goods_types AS p LEFT JOIN tdb_goods_types AS s
+            -> ON s.parent_id = p.type_id GROUP BY p.type_name;     GROUP
+        #多表删除         
+            DELETE t1 FROM tdb_goods AS t1 LEFT JOIN (SELECT goods_id,goods_name FROM tdb_goods GROUP BY goods_name HAVING count(goods_name) >= 2 ) AS t2  ON t1.goods_name = t2.goods_name  WHERE t1.goods_id > t2.goods_id;     
+#函数
+        #字符函数
+            #CONCAT() #字符连接
+            #CONCAT_WS() #使用分隔符将字符连接
+            #FORMAT() #数字格式化
+            #LOWER() #转成小写
+            #UPPER()  #转成大写
+            #LEFT()   #获取左侧字符
+            #RIGHT() #获取右侧字符
+            #LENGTH() #获取字符串长度
+            #LTRIM()  #删除前导空格
+            #RTRIM()  #删除后续空格
+            #TRIM()   #删除空格
+            #SUBSTRING()#字符串截取
+            #[NOT]LIKE #模式匹配
+            LINK "%q"以q为最后一个字符的 % 为通配符
+            #REPLACE()  #字符串替换
+        #数值函数
+            #CEIL() #向上取整
+            #DIV()  #整数除法
+            #FLOOR() #向下取整
+            #MOD()    #取余数
+            #POWER()    #幂运算
+            #ROUND()    #四舍五入
+            #TRUNCATE() #数字截取
+        #比较运算符
+            [NOT] BETWEEN...AND.. #[不]在范围之内
+            [NOT] IN()            #[不]在列出范围之内
+            IS [NOT] NULL         #[不]为空
+        #日期与时间函数
+            NOW()            #当前时间和日期
+            CURDATE()        #当前日期
+            CURTIME()        #当前时间
+            DATE_ADD()       #日期变化
+            DATEDIFF()       #日期差值
+            DATE_FORMAT()    #日期格式化
+        #信息函数
+            CONNECTION_ID()  #连接ID
+            DATABASE()       #当前数据库
+            LAST_INSERT_ID() #最后插入记录的ID号
+            USER()           #当前用户
+            VERSION()        #版本信息
+        #聚合函数
+            AVG()
+            COUNT()
+            MAX()
+            MIN()
+            SUM()
+        #加密函数
+            MD5()              #信息摘要算法
+            PASSWORD()         #密码算法 主要用来mysql密码修改
+-- 无限分类的数据表设计
+
+   CREATE TABLE tdb_goods_types(
+     type_id   SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+     type_name VARCHAR(20) NOT NULL,
+     parent_id SMALLINT UNSIGNED NOT NULL DEFAULT 0
+  ); 
+  -- 查找所有分类及其父类
+
+  SELECT s.type_id,s.type_name,p.type_name FROM tdb_goods_types AS s LEFT JOIN tdb_goods_types AS  p ON s.parent_id = p.type_id;
+   
+-- 查找所有分类及其子类
+
+  SELECT p.type_id,p.type_name,s.type_name FROM tdb_goods_types AS p LEFT JOIN tdb_goods_types AS  s ON s.parent_id = p.type_id;
+
+-- 查找所有分类及其子类的数目
+
+  SELECT p.type_id,p.type_name,count(s.type_name) AS children_count FROM tdb_goods_types AS p LEFT JOIN tdb_goods_types AS s ON s.parent_id = p.type_id GROUP BY p.type_name ORDER BY p.type_id;
+
+-- 为tdb_goods_types添加child_count字段
+
+  ALTER TABLE tdb_goods_types ADD child_count MEDIUMINT UNSIGNED NOT NULL DEFAULT 0;
+
+-- 将刚才查询到的子类数量更新到tdb_goods_types数据表
+
+  UPDATE tdb_goods_types AS t1 INNER JOIN ( SELECT p.type_id,p.type_name,count(s.type_name) AS children_count FROM tdb_goods_types AS p 
+
+                                            LEFT JOIN tdb_goods_types AS s ON s.parent_id = p.type_id 
+                             
+                                            GROUP BY p.type_name 
+
+                                            ORDER BY p.type_id ) AS t2 
+
+  ON  t1.type_id = t2.type_id 
+
+  SET t1.child_count = t2.children_count;
+
+
+-- 复制编号为12,20的两条记录
+
+  SELECT * FROM tdb_goods WHERE goods_id IN (19,20);
+
+
+-- INSERT ... SELECT实现复制
+
+  INSERT tdb_goods(goods_name,cate_id,brand_id) SELECT goods_name,cate_id,brand_id FROM tdb_goods WHERE goods_id IN (19,20);
+
+-- 查找重复记录
+
+  SELECT goods_id,goods_name FROM tdb_goods GROUP BY goods_name HAVING count(goods_name) >= 2;
+
+-- 删除重复记录
+
+  DELETE t1 FROM tdb_goods AS t1 LEFT JOIN (SELECT goods_id,goods_name FROM tdb_goods GROUP BY goods_name HAVING count(goods_name) >= 2 ) AS t2  ON t1.goods_name = t2.goods_name  WHERE t1.goods_id > t2.goods_id;
