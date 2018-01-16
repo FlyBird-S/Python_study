@@ -2,7 +2,10 @@
 mysql -u root -p
 //change prompt（提示符）   \u(user) \h(host) \d(database)
 prompt \u@\h \d>  
-
+SET NAMES gbk;
+delimiter //  #修改已;为结束
+ROW_COUNT() #返回上次操作影响的行
+ 
 #数据库
 CREATE DATABASE xxx;#创建
 use database xxx;#选择
@@ -336,6 +339,54 @@ ALTER DATABASE t2 CHARACTER SET = utf8;
         #加密函数
             MD5()              #信息摘要算法
             PASSWORD()         #密码算法 主要用来mysql密码修改
+    #自定义函数user-defined-function  UDF
+        CREATE FUNCTION function_name
+        RETURNS{STRING|INTEGER|REAL|DECIMAL}routine_dody
+        mysql> CREATE FUNCTION f1() RETURNS VARCHAR(30)
+            -> RETURN DATE_FORMAT(NOW(),'%Y年%m月%d日 %H点:%i分：%s秒');    
+        mysql> CREATE FUNCTION f2(num1 smallint unsigned,num2 smallint unsigned) RETURNS FLOAT(10,2) UNSIGNED
+        -> RETURN (num1+num2)/2;
+       
+       mysql> delimiter //
+       mysql> CREATE FUNCTION adduser(username VARCHAR(20))
+        -> RETURNS INT UNSIGNED
+        -> BEGIN
+        -> INSERT tb3(username) values(username);
+        -> RETURN LAST_INSERT_ID();
+        -> END//    
+        #将结尾符改为//可以在函数体内写语句，BEGIN END 之间可以写多行语句
+#存储过程
+        CREATE
+        [DEFINER = { user|CURRENT_USER}]
+        PROCEDURE sp_name ([proc_parameter[,...]])
+        [characteristic ...]routine_body
+        proc_parameter:
+        [IN|OUT|INOUT]param_name type    
+        eg：
+        定义：mysql> CREATE PROCEDURE sp1() SELECT VERSION();
+        创建：mysql> CALL sp1();  
+        #带IN
+        mysql> create procedure remove(IN _id tinyint)
+        -> begin
+        -> delete from ssss where id = _id;
+        -> end//
+        CALL remove(2) 
+        #IN OUT
+        mysql> create procedure remove_return(IN _id tinyint,OUT p_num tinyint)
+        -> BEGIN
+        -> DELETE FROM ssss where id = _id;
+        -> SELECT count(id) FROM ssss INTO p_num;
+        -> END//
+        
+        mysql> call remove_return(4,@unms);#@unms 用户变量
+        mysql> select @unms;
+        declare可以声明变量，比如  declare @a  int，只不过声明全局变量可以省略declare，而在begin--end里面声明需要用declare，而且要放在第一行
+            
+            
+            
+            
+            
+            
 -- 无限分类的数据表设计
 
    CREATE TABLE tdb_goods_types(
