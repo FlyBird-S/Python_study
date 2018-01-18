@@ -1,0 +1,6 @@
+django-admin startproject myblog #创建一个django工程
+python3 manage.py runserver xxx#启动服务器
+wsgi.py #一般不太动
+(web server gateway interface)
+urls.py #url配置
+settings.py 项目的总配置文件
