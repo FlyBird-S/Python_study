@@ -13,8 +13,8 @@ class TransferMoney(object):
             self.add_money(target_acctid,money)
             self.conn.commit()
         except Exception as e:
+            print e
             self.conn.rollback()
-            return e
 
     def check_acct_available(self, acctid):
         try:

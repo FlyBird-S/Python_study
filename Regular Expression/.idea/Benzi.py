@@ -105,7 +105,7 @@ def get_page(img_url):
 def img_url(x,img_count):
     return r'http://www.lifans.net/'+str(x)+'_'+str(img_count)+'.html'
 
-for x in range(1009,1100):
+for x in range(2009,2100):
     img_count = 1
     listurl = []
     page = get_page(img_url(x, 1))+1

@@ -1,6 +1,45 @@
 django-admin startproject myblog #创建一个django工程
 python3 manage.py runserver xxx#启动服务器
+python3 manage.py startapp blog #创造一个应用
+并注意将其添加入setting.py
 wsgi.py #一般不太动
 (web server gateway interface)
 urls.py #url配置
 settings.py 项目的总配置文件
+        #在引用上一集目录的包时可以利用以下语句
+            import sys
+            sys.path.append("..")
+        使用pycharm导入包提示“ NO module named blog”之类的错误的话，右键项目根文件夹（这里是myblog），选择Mark directory → source root 即可。
+#创建应用
+    1）编辑bolg.views:
+    每个响应对于一个函数，函数必须返回一个相应。函数必须存在一个参数，一般约定为request。每一个响应（函数）对应一个url。
+    2）配置url.py
+    url函数放在urlpatterns中
+    另一种配置URL方法
+    在根urls.py中引入include
+    在APP目录下创建urls.py格式与根urls.py一致
+    根urls.py中url函数的第二个参数改为include('app_name.urls')
+ #开发第一个templates：
+    templates本质是HTML文件
+    使用Django模版语言（Django templates language）
+    也可以使用第三方模版语言，比如jinja2
+   （1）在APP根目录下创建名叫Templates的目录
+   （2）在该目录下创建HTML文件
+   （3）在views.py中返回render()
+   #DTL的使用
+    render()函数中支持一个dict类型的参数。
+    该字典是后台传递到模版的参数，键为参数名
+    在模版中使用{{参数名}}来直接使用
+    #注意点：
+    Django在不同APP下templates目录中的同名html文件会冲突，解决方案：在templates目录下创建以APP名为名的目录，并将html文件放入新创建的目录下
+ #Models
+    通常一个Model对于数据库的一张表，其中Models以类的形式表现，包含了一些基本字段以及数据的一些行为。(orm)
+   #编写Models
+        在应用根目录下创建models.py，引入models模块。
+        创建类，继承models.Model，该类即是一个数据表
+       字段创建（类里面的属性）：
+    models.CharField(max_length=64)
+    models.TextField(null=True)
+    #生成数据表
+     使用python3 manage.py makemigratiions App_name
+         python3 manage.py migrate   
