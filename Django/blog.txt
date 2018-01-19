@@ -1,0 +1,1 @@
+html自动补全功能：右键templates下的blog文件夹，选择make directory as-->Template Folder-->把None改为django

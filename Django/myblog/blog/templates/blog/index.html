@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>"hello,blog"</title>
+    <title>hello,blog</title>
 </head>
 <body>
-<h1>{{article.title}}</h1>
-<h2>{{article.content}}</h2>
-<h3>{{article.content}}</h3>
-<h4>{{article.content}}</h4>
-<h5>{{article.content}}</h5>
-<h6>{{article.content}}</h6>
+<h1>
+    <a href ="{% url 'blog:edit_page' 0%}">新文章</a>
+</h1>
+{% for article in articles %}
+    <a href="{% url 'blog:page' article.id %}">{{ article.title}}</a>
+    <h3>{{article.id }}/{{article.title}}/{{article.content}}</h3>
+    <br/>
+{% endfor %}
 </body>
 </html>

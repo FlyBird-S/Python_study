@@ -42,4 +42,21 @@ settings.py 项目的总配置文件
     models.TextField(null=True)
     #生成数据表
      使用python3 manage.py makemigratiions App_name
-         python3 manage.py migrate   
+         python3 manage.py migrate  
+     查看SQL语句
+     python3 manage.py sqlmigrate app_name app_id(0001)   
+     查看数据库(默认为sqlite通过可视化工具查看管理)
+   #页面呈现数据
+   在views.py中import models
+   article = models.Article.objects.get(pk=1)#pk = primary key
+   render(request,page,{'article':article})
+     
+#Admin 是Django自带的自动化管理界面，可以管理数据库，并且可以进行定制功能
+    创建用户
+    python3  manage.py createsuperuser
+    (ersuan123)
+    打开服务器后通过localhost：8000/admin进入管理界面
+    修改settings.py中的Language_code = "zh_Hans"可以将界面修改为中文
+   #配置Admin
+        在应用下Admin.py中引用自身的models模块，并编辑Admin.py：Admin.site.register(models.Article)
+        修改数据默认名称
