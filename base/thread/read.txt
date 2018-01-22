@@ -1,0 +1,39 @@
+t = threading.Thread(target=loop, name='LoopThread')  # 参数（调用函数，线程名）
+t.start()
+t.join()
+threading.current_thread().name #获取当前进程名
+#锁的使用
+lock = threading.Lock()
+# 先要获取锁:
+lock.acquire()
+try:
+    # 放心地改吧:
+    change_it(n)
+finally:
+    # 改完了一定要释放锁:
+    lock.release()
+
+不同的线程，有时需要不同的数据，使用全局变量不容易把控，局部变量传递复杂。
+因此产生了ThreadLocal，一个ThreadLocal变量虽然是全局变量，但每个线程都只能读写自己线程的独立副本，互不干扰。
+ThreadLocal解决了参数在一个线程中各个函数之间互相传递的问题
+    import threading
+
+    # 创建全局ThreadLocal对象:
+    local_school = threading.local()
+
+    def process_student():
+        # 获取当前线程关联的student:
+        std = local_school.student
+        print('Hello, %s (in %s)' % (std, threading.current_thread().name))
+
+    def process_thread(name):
+        # 绑定ThreadLocal的student:
+        local_school.student = name
+        process_student()
+
+    t1 = threading.Thread(target= process_thread, args=('Alice',), name='Thread-A')
+    t2 = threading.Thread(target= process_thread, args=('Bob',), name='Thread-B')
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
