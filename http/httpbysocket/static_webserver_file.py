@@ -2,6 +2,7 @@ import socket
 import re
 import threading
 
+PY_ROOT_DIR = "./wsgi_pydir/"
 
 class HTTPServer(object):
     """"""
@@ -26,11 +27,12 @@ class HTTPServer(object):
         file_name = re.match(r"\w+ +(/[^ ]*)*", request_start_line.decode('utf-8')).group(
             1)  # \w+ +(/[^ ]+) #[^ ]代表非空格 group(1)第一个括号匹配的
         # b'ddd'字符串不能直接通过str转换，需要通过decode('xx')转换
+        # .py结尾 则执行py程序  run a program
         if file_name == r"/":
             file_name = "/index.html"
-        file_name = file_name[1::]
-        # 打开文件读取内容
-        # 构造响应数据
+            file_name = file_name[1::]
+            # 打开文件读取内容
+            # 构造响应数据
         try:
             print(file_name)
             file = open(file_name, "rb")

@@ -60,7 +60,6 @@ def set_ip(ip):
     proxy_s=urllib2.ProxyHandler(proxies)
     opener=urllib2.build_opener(proxy_s)
     urllib2.install_opener(opener)
-    print ip
 # headers = {
 #     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0_2 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Mobile/14A456 Safari/602.1',
 #         }

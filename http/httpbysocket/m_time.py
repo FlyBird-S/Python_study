@@ -1,10 +1,10 @@
 import time
-time.ctime()
-def application(env,handle_headers): # env 传入信息，  handle_headers是需要执行的函数
-    env = {
-        "PATH_INFO": file_name,
-        "QUERY_STRING": param,
-    }
-    status_code = 200,500....
-    handle_headers(status_code,["content-type":"text/...plain"])
-    return body
+
+
+def application(env, start_response):  # env 传入信息，  handle_headers是需要执行的函数
+    status = "200 OK"
+    headers = [
+        ("Content-Type", "text/plain")
+    ]
+    start_response(status, headers)
+    return time.ctime()
