@@ -1,0 +1,7 @@
+GET     查看资源
+POST    增加资源
+PUT     修改资源
+DELETE  删除资源
+HEAD    查看相应头
+OPTIONS 查看可用请求方法
+requests.[method](url)
