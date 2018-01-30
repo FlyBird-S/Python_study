@@ -1,6 +1,12 @@
 django-admin startproject myblog #创建一个django工程
 python3 manage.py runserver xxx#启动服务器
-python3 manage.py startapp blog #创造一个应用
+python3 manage.py startapp blog #创造一个应用(在setting中注册应用)
+添加数据库对象生成迁移
+python3 manage.py makemigratiions App_name
+python3 manage.py migrate  
+
+
+
 并注意将其添加入setting.py
 wsgi.py #一般不太动
 (web server gateway interface)

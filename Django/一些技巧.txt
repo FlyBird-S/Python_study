@@ -1,0 +1,22 @@
+Templates 过滤器
+    {{value|filter}}
+    eg:{{list_nums|length}}
+        {value|filter1|filter2|...}
+Django shell:
+  python3 manage.py shell
+  from blog.models improt Article
+  Article.object.all()
+  Article.object.all().values()
+  可以在调试时，参考
+Admin增强
+    创建admin配置类
+    class ArticleAdmin(admin.ModelAdmin):
+        list_display = ('title','content')
+    手动注册
+    admin.site.register(models.Article,ArticleAdmin)
+    为Article类添加发布时间属性后，需要数据迁移
+    python3 manage.py makemigrations
+    python3 manage.py migrate
+    #过滤器
+    eg:list_filter=("pub_time",)
+    
