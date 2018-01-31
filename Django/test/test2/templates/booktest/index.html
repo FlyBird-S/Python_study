@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title？</title>
+</head>
+<body>
+MAX:{{ date }}
+{% for book in list %}
+    <li>{{ book.btitle }}</li>
+{% endfor %}
+{% for book1 in list1 %}
+    <li>{{ book1.btitle}}--{{ book1.bread }}--{{ book1.bcommet }}</li>
+{% endfor %}
+</body>
+</html>
