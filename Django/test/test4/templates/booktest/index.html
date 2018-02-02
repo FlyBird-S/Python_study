@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a style="color: chartreuse" href="{% url 'booktest:show' 123%}">显示(反向解析)</a> {# namespace:name 传参 #}
+<hr>
+{{ hero.showname }}
+{% for hero in hero_list %}
+    {% if forloop.counter|divisibleby:2%}
+    <li style="color: mediumvioletred">{{ forloop.counter }}:{{ hero.showname }}-{{ hero.book }}</li>
+    {% else %}
+        <li style="color: blue">{{ forloop.counter }}:{{ hero.showname }}-{{ hero.book }}</li>
+    {% endif %}
+{%empty %}<br><h1>未找到</h1>
+{% endfor %}
+</body>
+</html>
